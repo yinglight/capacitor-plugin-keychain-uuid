@@ -14,10 +14,10 @@ public class KeychainUUID: CAPPlugin {
     }
     
     @objc func getDeviceID(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? "";
+        KeychainUUID.key = call.getString("value") ?? KeychainUUID.key;
         // read cache
         var deviceID = KeychainUUID.getUUIDString();
-        if KeychainUUID.kIsStringValid(deviceID) {
+        if deviceID != nil {
             call.success([
                 "status": true,
                 "deviceID": deviceID
@@ -31,7 +31,7 @@ public class KeychainUUID: CAPPlugin {
             ]);
         }
     }
-    
+
     class func randomUUID() -> String{
         if NSClassFromString("NSUUID") != nil {
             return UUID().uuidString;
@@ -41,27 +41,23 @@ public class KeychainUUID: CAPPlugin {
         let uuid = cfuuid! as String
         return uuid;
     }
-    
+
     class func getUUIDString() -> String? {
         let uuidStr = KeychainHelper.load(service: key)
-        if kIsStringValid(uuidStr) {
+        if (uuidStr != nil) {
             return uuidStr as? String
         } else {
             return nil
         }
     }
-    
+
     class func setUUIDString(_ secValue: String?) -> Bool {
-        if kIsStringValid(secValue) {
+        if secValue != nil {
             KeychainHelper.save(service: key, data: secValue)
             return true
         } else {
             return false
         }
-    }
-    
-    class func kIsStringValid(_ text: Any) -> Bool {
-        return text as! Bool && text != nil && (text as AnyObject).length > 0
     }
     
 }

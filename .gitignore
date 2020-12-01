@@ -3,6 +3,7 @@
 # And the CLI then renames it
 
 # node files
+package-lock.json
 dist/
 node_modules/
 

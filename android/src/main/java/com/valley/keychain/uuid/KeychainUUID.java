@@ -29,7 +29,6 @@ import java.util.UUID;
 public class KeychainUUID extends Plugin {
     private static final String LOG_TAG = "KeychainUUID";
     private static final int REQUEST_IMAGE_CAPTURE = 2002;
-    private static Boolean permissionStatus = false;
 
     @PluginMethod
     public void getDeviceID(PluginCall call) {
@@ -53,7 +52,7 @@ public class KeychainUUID extends Plugin {
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
 
-                if (permissionStatus) {
+                if (checkPermission()) {
 
                     SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
                     activeSubscriptionInfoCount = subscriptionManager.getActiveSubscriptionInfoCount();
@@ -130,16 +129,16 @@ public class KeychainUUID extends Plugin {
 
         boolean isNetworkRoaming = manager.isNetworkRoaming();
 
-        if (permissionStatus) {
+        if (checkPermission()) {
             phoneNumber = manager.getLine1Number();
             if (Build.VERSION.SDK_INT >= 29) {
                 deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
             } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 deviceId = manager.getDeviceId();
+                simSerialNumber = manager.getSimSerialNumber();
+                subscriberId = manager.getSubscriberId();
             }
             deviceSoftwareVersion = manager.getDeviceSoftwareVersion();
-            simSerialNumber = manager.getSimSerialNumber();
-            subscriberId = manager.getSubscriberId();
         }
 
         String mcc = "";
@@ -179,7 +178,7 @@ public class KeychainUUID extends Plugin {
             result.put("cards", sims);
         }
 
-        if (permissionStatus) {
+        if (checkPermission()) {
             result.put("phoneNumber", phoneNumber);
             result.put("deviceId", deviceId);
             result.put("deviceSoftwareVersion", deviceSoftwareVersion);
@@ -198,28 +197,11 @@ public class KeychainUUID extends Plugin {
         call.success(status);
     }
 
-    @Override
-    protected void handleRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.handleRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        Log.i( LOG_TAG,"handling request perms result");
-        PluginCall savedCall = getSavedCall();
-        if (savedCall == null) {
-            Log.i(LOG_TAG,"No stored plugin call for permissions request result");
-            return;
-        }
-
-        for(int result : grantResults) {
-            if (result == PackageManager.PERMISSION_DENIED) {
-                savedCall.error("User denied permission");
-                return;
-            }
-        }
-
-        // We got the permission
-        if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            permissionStatus = true;
-        }
+    private boolean checkPermission()
+    {
+        String permission = Manifest.permission.READ_PHONE_STATE;
+        int res = getContext().checkCallingOrSelfPermission(permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
     }
 
     /**

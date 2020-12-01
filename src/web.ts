@@ -9,8 +9,12 @@ export class KeychainUUIDWeb extends WebPlugin implements KeychainUUIDPlugin {
     });
   }
 
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('ECHO', options);
+  async getDeviceID(options: { value: string }): Promise<any> {
+    console.log('getDeviceID', options);
+    return options;
+  }
+  async deleteDeviceID(options: { value: string }): Promise<any> {
+    console.log('deleteDeviceID', options);
     return options;
   }
 }

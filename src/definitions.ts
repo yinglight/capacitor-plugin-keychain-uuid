@@ -5,5 +5,6 @@ declare module '@capacitor/core' {
 }
 
 export interface KeychainUUIDPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
+  getDeviceID(options: { value: string }): Promise<any>;
+  deleteDeviceID(options: { value: string }): Promise<any>;
 }

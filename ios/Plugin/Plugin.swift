@@ -20,14 +20,14 @@ public class KeychainUUID: CAPPlugin {
         if deviceID != nil {
             call.success([
                 "status": true,
-                "deviceID": deviceID
+                "deviceId": deviceID
             ]);
         } else {
             deviceID = KeychainUUID.randomUUID().lowercased();
             KeychainUUID.setUUIDString(deviceID);
             call.success([
                 "status": true,
-                "deviceID": deviceID
+                "deviceId": deviceID
             ]);
         }
     }
